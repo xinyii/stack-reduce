@@ -40,6 +40,10 @@ function sidebarTool() {
     {
       text: 'IDE',
       items: [{ text: 'IntelliJ IDEA', link: '/tool/ide/intellij-idea' }]
+    },
+    {
+      text: '通用',
+      items: [{ text: 'uTools', link: '/tool/common/utools' }]
     }
   ]
 }
