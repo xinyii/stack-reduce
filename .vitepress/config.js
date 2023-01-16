@@ -5,9 +5,12 @@ export default {
   srcDir: 'src',
   lang: 'zh-CN',
   themeConfig: {
+    outlineTitle: '本页目录',
+    outline: [2, 4],
     nav: nav(),
     sidebar: {
-      '/guide/': sidebarGuide()
+      '/guide/': sidebarGuide(),
+      '/tool/': sidebarTool()
     }
   }
 }
@@ -15,7 +18,7 @@ export default {
 function nav() {
   return [
     { text: '向导', link: '/guide/introduction' },
-    { text: '工具', link: '/tool/index' }
+    { text: '工具', link: '/tool/ide/intellij-idea' }
   ]
 }
 
@@ -28,6 +31,15 @@ function sidebarGuide() {
         { text: '导读', link: '/guide/outline' },
         { text: '规范', link: '/guide/specification' }
       ]
+    }
+  ]
+}
+
+function sidebarTool() {
+  return [
+    {
+      text: 'IDE',
+      items: [{ text: 'IntelliJ IDEA', link: '/tool/ide/intellij-idea' }]
     }
   ]
 }
