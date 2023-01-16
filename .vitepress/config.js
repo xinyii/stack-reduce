@@ -4,21 +4,28 @@ export default {
   appearance: 'dark',
   srcDir: 'src',
   lang: 'zh-CN',
+  lastUpdated: true,
   themeConfig: {
     outlineTitle: '本页目录',
     outline: [2, 4],
     nav: nav(),
     sidebar: {
       '/guide/': sidebarGuide(),
-      '/tool/': sidebarTool()
+      '/tool/': sidebarTool(),
+      '/backend/': sidebarBackend()
     }
   }
 }
 
 function nav() {
   return [
-    { text: '向导', link: '/guide/introduction' },
-    { text: '工具', link: '/tool/ide/intellij-idea' }
+    { text: '向导', link: '/guide/introduction', activeMatch: '/guide/' },
+    { text: '工具', link: '/tool/ide/intellij-idea', activeMatch: '/tool/' },
+    {
+      text: '后端',
+      activeMatch: '/backend/',
+      items: [{ text: 'Java', link: '/backend/java/stack' }]
+    }
   ]
 }
 
@@ -44,6 +51,18 @@ function sidebarTool() {
     {
       text: '通用',
       items: [{ text: 'uTools', link: '/tool/common/utools' }]
+    }
+  ]
+}
+
+function sidebarBackend() {
+  return [
+    {
+      text: 'Java',
+      items: [
+        { text: '技术栈', link: '/backend/java/stack' },
+        { text: '开发框架', link: '/backend/java/framework' }
+      ]
     }
   ]
 }
