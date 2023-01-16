@@ -1,0 +1,16 @@
+{
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "dev": "vitepress",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "clean": "rm -rf .vitepress/dist"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.3",
+    "vitepress": "^1.0.0-alpha.36",
+    "vue": "^3.2.45"
+  }
+}
