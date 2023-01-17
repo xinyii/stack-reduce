@@ -24,7 +24,14 @@ export default {
 function nav() {
   return [
     { text: '向导', link: '/guide/introduction', activeMatch: '/guide/' },
-    { text: '工具', link: '/tool/ide/intellij-idea', activeMatch: '/tool/' },
+    {
+      text: '工具',
+      activeMatch: '/tool/',
+      items: [
+        { text: 'IDE', link: '/tool/ide/intellij-idea' },
+        { text: '通用', link: '/tool/common/utools' }
+      ]
+    },
     {
       text: '设计',
       activeMatch: '/design/',
@@ -53,19 +60,19 @@ function nav() {
       ]
     },
     {
-      text: '运维',
-      activeMatch: '/ops/',
-      items: [
-        { text: '部署', link: '/ops/deploy/jdk' },
-        { text: 'CI/CD', link: '/ops/cicd/jenkins' }
-      ]
-    },
-    {
       text: '测试',
       activeMatch: '/test/',
       items: [
         { text: '单元测试', link: '/test/unit/java' },
         { text: '性能测试', link: '/test/performance/jmeter' }
+      ]
+    },
+    {
+      text: '运维',
+      activeMatch: '/ops/',
+      items: [
+        { text: '部署', link: '/ops/deploy/jdk' },
+        { text: 'CI/CD', link: '/ops/cicd/jenkins' }
       ]
     }
   ]
@@ -151,6 +158,22 @@ function sidebarFrontend() {
   ]
 }
 
+function sidebarTest() {
+  return [
+    {
+      text: '单元测试',
+      items: [
+        { text: 'Java', link: '/test/unit/java' },
+        { text: 'JMeter', link: '/test/unit/jmeter' }
+      ]
+    },
+    {
+      text: '性能测试',
+      items: [{ text: 'JMeter', link: '/test/performance/jmeter' }]
+    }
+  ]
+}
+
 function sidebarOps() {
   return [
     {
@@ -167,22 +190,6 @@ function sidebarOps() {
     {
       text: 'CI/CD',
       items: [{ text: 'Jenkins', link: '/ops/cicd/jenkins' }]
-    }
-  ]
-}
-
-function sidebarTest() {
-  return [
-    {
-      text: '单元测试',
-      items: [
-        { text: 'Java', link: '/test/unit/java' },
-        { text: 'JMeter', link: '/test/unit/jmeter' }
-      ]
-    },
-    {
-      text: '性能测试',
-      items: [{ text: 'JMeter', link: '/test/performance/jmeter' }]
     }
   ]
 }
