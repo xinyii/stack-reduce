@@ -98,7 +98,10 @@ function sidebarTool() {
     },
     {
       text: '通用',
-      items: [{ text: 'uTools', link: '/tool/common/utools' }]
+      items: [
+        { text: 'uTools', link: '/tool/common/utools' },
+        { text: 'Everything', link: '/tool/common/everything' }
+      ]
     }
   ]
 }
