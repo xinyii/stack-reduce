@@ -1,6 +1,6 @@
 # Everything
 
-> 快速全盘搜索文件路径、名称、内容
+> 快速全盘搜索文件路径、名称、内容。
 
 [官方网站](https://www.voidtools.com/)
 
