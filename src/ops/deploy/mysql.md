@@ -70,6 +70,12 @@ yum install mysql-community-server
 systemctl start mysqld
 ```
 
+设置开机自启：
+
+```shell
+systemctl enable mysqld
+```
+
 查看运行状态：
 
 ```shell
