@@ -37,7 +37,7 @@ rpm -Uvh mysql80-community-release-el7-7.noarch.rpm
 
 #### 4. 配置要安装的 MySQL 版本
 
-> 目前默认安装最新 8.0 版本，如果不需要改就跳过这一步
+> 目前默认安装最新 8.0 版本，如果不需要改就跳过这一步。
 
 例如切换到 5.7 版本安装：
 
@@ -70,7 +70,7 @@ yum install mysql-community-server
 systemctl start mysqld
 ```
 
-查看运行状态
+查看运行状态：
 
 ```shell
 systemctl start mysqld
@@ -82,13 +82,13 @@ systemctl start mysqld
 grep 'temporary password' /var/log/mysqld.log
 ```
 
-输入初始密码登录
+输入初始密码登录：
 
 ```shell
 mysql -uroot -p
 ```
 
-修改密码
+修改密码：
 
 ```sql
 ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码';
@@ -97,7 +97,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码';
 #### 8. 开启远程访问（可选）
 
 ::: warning 注意  
-生产环境不要开远程访问，有被攻击的风险  
+生产环境不要开远程访问，有被攻击的风险。  
 :::
 
 ```sql
