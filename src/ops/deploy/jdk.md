@@ -13,19 +13,19 @@
 
 ### CentOS Yum 方式安装
 
-查看可安装的 JDK 版本：
+#### 1. 查看可安装的 JDK 版本
 
 ```shell
 yum search jdk
 ```
 
-选择其中一个安装，例如：
+#### 2. 选择其中一个安装
 
 ```shell
 yum install java-1.8.0-openjdk
 ```
 
-打印 JDK 版本查看安装是否成功：
+#### 3. 打印 JDK 版本查看安装是否成功
 
 ```shell
 java --version
