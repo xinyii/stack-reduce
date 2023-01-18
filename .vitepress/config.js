@@ -38,7 +38,7 @@ function nav() {
       items: [
         { text: '流程设计', link: '/design/flow/tool' },
         { text: '原型设计', link: '/design/prototype/tool' },
-        { text: '数据库设计', link: '/design/database/tool' },
+        { text: '数据库设计', link: '/design/database/specification' },
         { text: '接口设计', link: '/design/api/tool' }
       ]
     },
@@ -118,7 +118,10 @@ function sidebarDesign() {
     },
     {
       text: '数据库设计',
-      items: [{ text: '工具', link: '/design/database/tool' }]
+      items: [
+        { text: '规范', link: '/design/database/specification' },
+        { text: '工具', link: '/design/database/tool' }
+      ]
     },
     {
       text: '接口设计',
