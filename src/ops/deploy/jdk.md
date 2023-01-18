@@ -19,13 +19,13 @@
 yum search jdk
 ```
 
-#### 2. 选择其中一个安装
+#### 2. 安装指定的 JDK 版本
 
 ```shell
 yum install java-1.8.0-openjdk
 ```
 
-#### 3. 打印 JDK 版本查看安装是否成功
+#### 3. 检查 JDK 版本
 
 ```shell
 java --version
