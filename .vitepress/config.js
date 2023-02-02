@@ -36,7 +36,7 @@ function nav() {
       text: '设计',
       activeMatch: '/design/',
       items: [
-        { text: '流程设计', link: '/design/flow/tool' },
+        { text: '系统设计', link: '/design/system/uml' },
         { text: '原型设计', link: '/design/prototype/tool' },
         { text: '数据库设计', link: '/design/database/specification' },
         { text: '接口设计', link: '/design/api/tool' }
@@ -109,8 +109,11 @@ function sidebarTool() {
 function sidebarDesign() {
   return [
     {
-      text: '流程设计',
-      items: [{ text: '工具', link: '/design/flow/tool' }]
+      text: '系统设计',
+      items: [
+        { text: '建模', link: '/design/system/uml' },
+        { text: '工具', link: '/design/system/tool' }
+      ]
     },
     {
       text: '原型设计',
