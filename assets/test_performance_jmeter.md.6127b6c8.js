@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as r}from"./app.baf780c0.js";const f=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"test/performance/jmeter.md","lastUpdated":1673947019000}'),a={name:"test/performance/jmeter.md"};function o(s,c,n,p,m,d){return r(),t("div")}const i=e(a,[["render",o]]);export{f as __pageData,i as default};
