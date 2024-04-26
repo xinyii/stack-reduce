@@ -18,6 +18,9 @@ export default {
       '/ops/': sidebarOps(),
       '/test/': sidebarTest()
     }
+  },
+  sitemap: {
+    hostname: 'https://stack-reduce.kitlib.cn'
   }
 }
 
