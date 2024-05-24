@@ -196,7 +196,8 @@ function sidebarOps() {
         { text: 'Nginx', link: '/ops/deploy/nginx' },
         { text: 'NodeJS', link: '/ops/deploy/nodejs' },
         { text: 'Redis', link: '/ops/deploy/redis' },
-        { text: 'Docker', link: '/ops/deploy/docker' }
+        { text: 'Docker', link: '/ops/deploy/docker' },
+        { text: 'Script', link: '/ops/deploy/script' }
       ]
     },
     {
