@@ -1,0 +1,5 @@
+@media (min-width: 640px) {
+  .name, .text {
+     max-width: 640px !important;
+  }
+}
