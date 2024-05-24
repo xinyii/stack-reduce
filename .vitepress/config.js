@@ -99,6 +99,7 @@ function nav() {
       activeMatch: '/backend/',
       items: [
         { text: 'Java', link: '/backend/java/stack' },
+        { text: 'TypeScript', link: '/backend/ts/stack' },
         { text: '数据库', link: '/backend/database/knowledge' }
       ]
     },
@@ -194,6 +195,10 @@ function sidebarBackend() {
         { text: '框架', link: '/backend/java/framework' },
         { text: '规范', link: '/backend/java/specification' }
       ]
+    },
+    {
+      text: 'TypeScript',
+      items: [{ text: '技术栈', link: '/backend/ts/stack' }]
     },
     {
       text: '数据库',
