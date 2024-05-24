@@ -46,7 +46,22 @@ export default {
   },
   sitemap: {
     hostname: 'https://stack-reduce.kitlib.cn'
-  }
+  },
+  head: [
+    [
+      'script',
+      {},
+      `
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?08fb2575ed6f0861773af2c5601ebd44";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+      })();
+      `
+    ]
+  ]
 }
 
 function nav() {
