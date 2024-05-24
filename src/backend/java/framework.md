@@ -11,12 +11,13 @@
 - 在线体验：<http://dashboard.yudao.iocoder.cn/>
   - 账号：admin
   - 密码：admin123
+- 项目文档：<https://doc.iocoder.cn/>
 
 ### ruoyi-vue-pro-mini
 
 > ruoyi-vue-pro 的精简版：移除工作流、支付等模块。
 
-仓库地址：<https://gitee.com/zhijiantianya/ruoyi-vue-pro/tree/mini>
+仓库地址：<https://gitee.com/yudaocode/yudao-boot-mini>
 
 ## 门户网站
 

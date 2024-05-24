@@ -42,7 +42,16 @@ export default {
           }
         }
       }
-    }
+    },
+    lastUpdated: {
+      text: '最后更新于'
+    },
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    },
+    lightModeSwitchTitle: '切换到浅色模式',
+    darkModeSwitchTitle: '切换到深色模式'
   },
   sitemap: {
     hostname: 'https://stack-reduce.kitlib.cn'
