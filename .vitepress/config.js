@@ -80,6 +80,7 @@ function nav() {
       text: '工具',
       activeMatch: '/tool/',
       items: [
+        { text: 'AI', link: '/tool/ai/chat-gpt' },
         { text: 'IDE', link: '/tool/ide/intellij-idea' },
         { text: '通用', link: '/tool/common/utools' }
       ]
@@ -145,6 +146,10 @@ function sidebarGuide() {
 
 function sidebarTool() {
   return [
+    {
+      text: 'AI',
+      items: [{ text: 'ChatGPT', link: '/tool/ai/chat-gpt' }]
+    },
     {
       text: 'IDE',
       items: [{ text: 'IntelliJ IDEA', link: '/tool/ide/intellij-idea' }]
