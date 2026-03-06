@@ -1,37 +1,15 @@
 ---
 title: 扩展与集成
-description: MCP 外部数据源、Custom Commands、Skills 技能、Hooks 钩子与 Subagents 子代理。
+description: MCP 外部数据源、Skills 技能、Hooks 钩子与 Subagents 子代理。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-> Cursor 不只是编辑器——通过 MCP、Skills、Hooks、Subagents 等扩展机制，它可以连接外部数据源、封装团队知识、自动化重复流程。
+> 通过 MCP、Skills、Hooks、Subagents 等扩展机制，Cursor 可以连接外部数据源、封装团队知识、自动化重复流程。
 
-## MCP：连接外部世界
+## MCP：连接外部工具
 
-MCP（Model Context Protocol）让 Cursor 中的 AI 连接到外部工具和数据源，从被动的聊天机器人变成主动的 Agent。
-
-### 核心概念
-
-| 概念 | 说明 |
-|------|------|
-| Tools | 可执行的操作（创建 Issue、查询数据库、搜索文档） |
-| Resources | 只读数据源（读取配置、获取状态） |
-| Stdio | 本地进程通信，速度快，适合个人开发 |
-| SSE / StreamableHttp | 远程连接，适合团队共享 |
-
-### 配置方式
-
-#### 方式一：通过 Settings UI
-
-1. 打开 Cursor Settings（`Ctrl + ,`）
-2. 导航到 Tools & MCP
-3. 点击 "Add new MCP server"
-4. 填写名称、类型和连接信息
-
-#### 方式二：通过 JSON 配置
-
-在项目根目录创建 `.cursor/mcp.json`，便于团队共享：
+MCP（Model Context Protocol）让 AI 连接外部工具和数据源。在项目根目录创建 `.cursor/mcp.json`：
 
 ```json
 {
@@ -39,187 +17,64 @@ MCP（Model Context Protocol）让 Cursor 中的 AI 连接到外部工具和数�
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "supabase": {
-      "command": "npx",
-      "args": ["-y", "@supabase/mcp-server"],
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_TOKEN}"
-      }
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
     }
   }
 }
 ```
 
-<Callout type="warn" title="注意">
-永远不要在 `mcp.json` 中硬编码 API 密钥。使用环境变量引用（`${VAR_NAME}`）或安全的凭证管理方案。
-</Callout>
+常用集成：
 
-### 常用 MCP 集成
-
-| 集成 | 用途 | 安装命令 |
-|------|------|----------|
-| GitHub | PR 管理、Issues 操作、代码搜索 | `npx -y @modelcontextprotocol/server-github` |
-| Linear | 项目管理、Issue 跟踪 | 通过 `https://mcp.linear.app/mcp` 配置 |
-| Supabase | 数据库查询、表结构管理 | `npx -y @supabase/mcp-server` |
-| Postgres | 直接查询 PostgreSQL | `npx -y @modelcontextprotocol/server-postgres` |
-| Context7 | 实时文档查询 | `npx -y @context7/mcp-server` |
-
-### MCP 治理
-
-仅连接 MCP 服务器是不够的，还需要在 Rules 中指导 AI 何时、如何使用这些工具：
-
-```markdown
----
-description: MCP 工具使用指南
-alwaysApply: true
----
-
-# MCP 使用规则
-- 查看项目 Issues 时使用 Linear MCP
-- 数据库操作前先确认是否在开发环境
-- 创建 PR 前使用 GitHub MCP 检查 CI 状态
-```
-
-<Callout>
-不要连接太多 MCP 工具——每个 MCP 的 Tool 定义都会占用上下文窗口。专注于 3–5 个高频使用的集成，避免 Token 膨胀。
-</Callout>
-
-## Custom Commands：一键执行
-
-自定义命令将常用操作封装成 `/command` 格式，在 Chat 中一键调用。
-
-### 创建方式
-
-在 Settings → Features → Custom Commands 中配置，或在 `.cursor/commands/` 目录下创建 `.md` 文件：
-
-```markdown
-<!-- .cursor/commands/review.md -->
-请对以下代码进行审查：
-
-1. 检查潜在的 Bug 和边界情况
-2. 评估性能影响
-3. 验证错误处理是否完善
-4. 检查是否符合项目编码规范
-
-对每个问题给出严重等级（高/中/低）和修复建议。
-```
-
-### 常用命令示例
-
-| 命令 | 用途 |
+| 集成 | 用途 |
 |------|------|
-| `/review` | 代码审查 |
-| `/test` | 生成单元测试 |
-| `/refactor` | 重构优化 |
-| `/doc` | 生成文档注释 |
-| `/fix-issue` | 修复 GitHub Issue |
+| GitHub | PR 管理、Issues 操作、代码搜索 |
+| Supabase | 数据库查询、表结构管理 |
+| Postgres | 直接查询 PostgreSQL |
+| Context7 | 实时文档查询 |
 
-## Skills：可复用的领域知识
+<Callout type="warn" title="注意">
+不要在 `mcp.json` 中硬编码密钥，使用 `${VAR_NAME}` 引用环境变量。MCP 工具不宜太多（3–5 个），每个 Tool 定义都会占用上下文窗口。
+</Callout>
 
-Skills 是定义在 `SKILL.md` 文件中的可复用知识库，与始终生效的 Rules 不同，Skills 只在相关时被 AI 触发。
+## Skills：可复用知识
 
-### 创建 Skill
-
-在 `.cursor/skills/` 目录下创建子目录，每个子目录包含一个 `SKILL.md`：
-
-```
-.cursor/skills/
-├── deploy-docker/
-│   └── SKILL.md
-├── create-api-route/
-│   └── SKILL.md
-└── setup-testing/
-    └── SKILL.md
-```
-
-### Skill 示例
+Skills 定义在 `.cursor/skills/*/SKILL.md` 中，与始终生效的 Rules 不同，Skills 只在相关时被 AI 触发。
 
 ```markdown
 <!-- .cursor/skills/create-api-route/SKILL.md -->
 # 创建 API 路由
 
-当用户要求创建新的 API 路由时，按以下步骤执行：
-
-1. 在 `src/app/api/` 下创建路由文件 `route.ts`
-2. 使用标准响应格式：
-   ```typescript
-   return Response.json({ code: 0, message: "ok", data: result })
-   ```
-3. 添加输入验证（使用 Zod）
-4. 添加错误处理中间件
-5. 更新 API 文档
+1. 在 `src/app/api/` 下创建 `route.ts`
+2. 使用标准响应格式 `{ code, message, data }`
+3. 添加 Zod 输入验证
+4. 添加错误处理
 ```
 
-### Skills vs Rules
-
-| 特性 | Rules | Skills |
+| 对比 | Rules | Skills |
 |------|-------|--------|
-| 触发方式 | 自动注入或条件触发 | AI 按需触发或手动调用 |
-| 内容类型 | 约束和规范 | 工作流和操作指南 |
-| 上下文消耗 | 始终或条件占用 | 仅在触发时占用 |
-| 适用场景 | 编码风格、项目规范 | 部署流程、复杂操作步骤 |
+| 触发 | 自动/条件注入 | AI 按需触发 |
+| 内容 | 约束和规范 | 工作流和操作指南 |
+| 上下文 | 始终/条件占用 | 仅触发时占用 |
 
 ## Hooks：自动化钩子
 
-Hooks 在特定事件发生时自动执行脚本，不依赖 AI "记住"要做某事。
-
-### 事件类型
-
-| 事件 | 触发时机 |
-|------|----------|
-| `file_saved` | 文件保存时 |
-| `file_created` | 新文件创建时 |
-| `pre_commit` | Git 提交前 |
-| `post_generation` | AI 生成代码后 |
-
-### 配置示例
-
-AI 生成代码后自动格式化：
+Hooks 在特定事件时**确定性执行**，不依赖 AI "记住"要做某事。
 
 ```json
 {
   "hooks": {
     "post_generation": [
-      {
-        "command": "npx prettier --write",
-        "description": "自动格式化生成的代码"
-      }
+      { "command": "npx prettier --write", "description": "格式化生成的代码" }
     ]
   }
 }
 ```
 
-新建文件后自动添加文件头：
-
-```json
-{
-  "hooks": {
-    "file_created": [
-      {
-        "command": "node scripts/add-file-header.js",
-        "globs": "src/**/*.ts",
-        "description": "为新 TS 文件添加版权头"
-      }
-    ]
-  }
-}
-```
-
-<Callout>
-Hooks 是确定性执行的——它不是"请求" AI 做某事，而是在事件触发时 100% 执行。适合格式化、Lint、安全扫描等不能遗漏的操作。
-</Callout>
+支持的事件：`file_saved`、`file_created`、`pre_commit`、`post_generation`。适合格式化、Lint、安全扫描等不能遗漏的操作。
 
 ## Subagents：并行子代理
 
-Subagents（子代理）在独立的上下文窗口中运行，可以并行处理多个子任务，互不干扰。
-
-### 内置子代理
-
-Cursor 2.4+ 内置了几种默认子代理：
+子代理在独立上下文中运行，不污染主对话。内置三种：
 
 | 子代理 | 用途 |
 |--------|------|
@@ -227,47 +82,12 @@ Cursor 2.4+ 内置了几种默认子代理：
 | Shell | 终端命令执行 |
 | GeneralPurpose | 通用多步骤任务 |
 
-### 使用场景
-
-**研究型** — 让子代理调查代码库，不污染主对话上下文：
+典型用法：
 
 ```
-使用子代理分析我们项目中所有的 API 路由，
-列出每个路由的方法、路径和中间件使用情况。
+使用子代理分析项目中所有 API 路由，列出方法、路径和中间件。
 ```
 
-**验证型** — 让子代理检查边界情况：
-
 ```
-用子代理检查这个支付模块的错误处理，
-重点关注网络超时和并发问题。
+同时执行：子代理 A 重构 UserService，子代理 B 为 OrderService 写测试。
 ```
-
-**并行型** — 多个子代理同时处理不同任务：
-
-```
-同时执行以下任务：
-1. 子代理 A：重构 UserService
-2. 子代理 B：为 OrderService 写测试
-3. 子代理 C：更新 API 文档
-```
-
-### 自定义子代理
-
-每个子代理拥有独立的上下文窗口、工具访问权限和模型选择，可以针对团队需求定制。
-
-## Cursor Blame
-
-<Callout>
-Cursor Blame 是企业版功能。
-</Callout>
-
-Cursor Blame 为 Git Blame 增加了 AI 属性标签，显示每行代码的来源信息：
-
-| 属性 | 说明 |
-|------|------|
-| 来源 | Tab 补全 / Agent 生成 / 人工编写 |
-| 模型 | 生成该代码使用的 AI 模型 |
-| 对话链接 | 跳转到生成该代码的原始对话 |
-
-这对于团队评审 AI 生成的代码质量和追溯问题根源非常有价值。

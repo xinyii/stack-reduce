@@ -5,158 +5,73 @@ description: 子代理、Hooks 钩子、MCP 集成与 Skills 技能系统。
 
 ## 子代理（Subagents）
 
-子代理在独立的上下文窗口中运行，是保持主对话干净的强大工具。
+子代理在独立上下文中运行，不污染主对话。典型用法：
 
-### 调查型使用
+- **调查型** — `使用子代理调查认证系统如何处理 token 刷新`
+- **验证型** — `用子代理检查这段代码的边界情况`
 
-```
-使用子代理调查我们的认证系统如何处理 token 刷新，
-以及是否有现成的 OAuth 工具可以复用。
-```
-
-子代理会探索代码库、读取相关文件，然后汇报发现——不会污染主对话上下文。
-
-### 验证型使用
-
-```
-用子代理检查这段代码的边界情况
-```
-
-### 自定义子代理
-
-在 `.claude/agents/` 目录下定义专用子代理：
-
-```markdown
----
-name: security-reviewer
-description: Reviews code for security vulnerabilities
-tools: Read, Grep, Glob, Bash
-model: opus
----
-你是一名资深安全工程师。检查以下安全问题：
-- 注入漏洞（SQL、XSS、命令注入）
-- 认证和授权缺陷
-- 代码中的密钥或凭证
-- 不安全的数据处理
-
-提供具体的行号引用和修复建议。
-```
+自定义子代理定义在 `.claude/agents/` 目录下，每个文件包含名称、工具权限、模型和提示词。
 
 ## Hooks 自动化
 
-Hooks 是生命周期钩子，在关键节点**确定性地**自动执行，不依赖 AI "记住"要做某事。
+Hooks 在关键节点**确定性执行**，不依赖 AI "记住"要做某事。
 
-### 处理器类型
+| 处理器类型 | 说明 |
+|------------|------|
+| `command` | 执行 Shell 命令（格式化、Lint） |
+| `prompt` | LLM 单轮 Yes/No 判断 |
+| `agent` | 多轮子代理验证 |
+| `http` | POST 到端点（外部通知） |
 
-| 类型 | 说明 | 适用场景 |
-|------|------|----------|
-| `command` | 执行 Shell 命令 | 格式化、Lint、日志、安全 |
-| `prompt` | LLM 单轮 Yes/No 判断 | 任务检查 |
-| `agent` | 多轮子代理验证 | 运行测试套件 |
-| `http` | POST 到端点接收 JSON | 外部系统通知 |
+生命周期事件：`SessionStart`、`PreToolUse`、`PostToolUse`、`TaskCompleted` 等。
 
-### 生命周期事件
-
-`SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PostToolUse`、`TaskCompleted` 等 15 个事件。
-
-### 配置示例
-
-每次 Claude 写入/编辑文件后自动用 Prettier 格式化：
+示例——文件编辑后自动格式化：
 
 ```json
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null; exit 0"
-          }
-        ]
-      }
-    ]
+    "PostToolUse": [{
+      "matcher": "Write|Edit",
+      "hooks": [{
+        "type": "command",
+        "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null; exit 0"
+      }]
+    }]
   }
 }
 ```
 
-配置文件位置：`.claude/settings.json`（项目级）或 `~/.claude/settings.json`（用户级）。
+配置位置：`.claude/settings.json`（项目级）或 `~/.claude/settings.json`（用户级）。退出码 `0` 成功，`2` 阻止操作。
 
-### 退出码约定
-
-| 退出码 | 含义 |
-|--------|------|
-| `0` | 成功 |
-| `2` | 阻止操作（拦截工具执行） |
-| 其他 | 错误（向用户展示，继续执行） |
-
-## MCP 服务器集成
-
-MCP（Model Context Protocol）让 Claude 连接外部工具和数据源。
-
-### 添加 MCP 服务器
+## MCP 集成
 
 ```bash
-# CLI 快速添加
 claude mcp add --transport http my-server https://my-server.com/mcp
-
-# stdio 本地进程
-claude mcp add --transport stdio my-local-tool -- node ./my-tool.js
+claude mcp add --transport stdio my-tool -- node ./my-tool.js
 ```
 
-### 配置层级
-
-| 层级 | 位置 | 适用范围 |
-|------|------|----------|
+| 配置层级 | 位置 | 范围 |
+|----------|------|------|
 | 用户级 | `~/.claude/settings.json` | 所有项目 |
 | 项目级 | `.claude/settings.json` | 团队共享 |
-| 本地级 | `.claude/settings.local.json` | 当前机器（gitignore） |
+| 本地级 | `.claude/settings.local.json` | 仅当前机器 |
 
-### 常用集成
+常用集成：GitHub（PR/Issues）、Perplexity（搜索）、Context7（文档）、Figma（设计稿）。
 
-- **GitHub**：PR 管理、Issues 操作
-- **Perplexity**：在线搜索
-- **Sequential Thinking**：复杂推理任务
-- **Context7**：实时文档查询
-- **Figma**：设计稿集成
+## Skills 技能
 
-## Skills 技能系统
+在 `.claude/skills/` 中创建 `SKILL.md`，赋予 Claude 可复用的领域知识和工作流。
 
-在 `.claude/skills/` 中创建 `SKILL.md` 文件，赋予 Claude 领域知识和可复用的工作流。
-
-### 知识型技能
-
-```markdown
----
-name: api-conventions
-description: REST API design conventions for our services
----
-# API 约定
-- URL 路径使用 kebab-case
-- JSON 属性使用 camelCase
-- 列表接口必须包含分页
-- 在 URL 路径中版本化（/v1/、/v2/）
-```
-
-### 可调用工作流
+可调用工作流示例（运行 `/fix-issue 1234` 触发）：
 
 ```markdown
 ---
 name: fix-issue
 description: Fix a GitHub issue
-disable-model-invocation: true
 ---
 分析并修复 GitHub issue：$ARGUMENTS。
-
-1. 使用 `gh issue view` 获取 issue 详情
-2. 理解 issue 描述的问题
-3. 搜索代码库找到相关文件
-4. 实现必要的修改来修复 issue
-5. 编写并运行测试验证修复
-6. 确保代码通过 lint 和类型检查
-7. 创建描述性的提交信息
-8. 推送并创建 PR
+1. `gh issue view` 获取详情
+2. 搜索代码库找到相关文件
+3. 实现修复并编写测试
+4. 创建 PR
 ```
-
-运行 `/fix-issue 1234` 即可调用。
