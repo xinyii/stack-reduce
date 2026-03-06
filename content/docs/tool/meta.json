@@ -1,5 +1,5 @@
 {
   "title": "工具",
   "root": true,
-  "pages": ["ai", "ide", "common"]
+  "pages": ["ide", "common"]
 }

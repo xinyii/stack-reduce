@@ -1,0 +1,5 @@
+{
+  "title": "AI",
+  "root": true,
+  "pages": ["claude-code"]
+}

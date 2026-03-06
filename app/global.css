@@ -1,3 +1,35 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+
+html {
+  overflow-y: auto !important;
+  scrollbar-gutter: auto !important;
+}
+
+/* Overlay scrollbar: floats over content without taking up layout space */
+@supports (overflow-y: overlay) {
+  html {
+    overflow-y: overlay !important;
+  }
+}
+
+/* Thin translucent scrollbar for Firefox and modern Chromium */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 150, 150, 0.4) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.6);
+}

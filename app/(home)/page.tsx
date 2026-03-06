@@ -2,23 +2,28 @@ import Link from 'next/link';
 
 const features = [
   {
+    title: 'AI',
+    description: 'AI 工具使用技巧与实践。',
+    href: '/docs/ai/claude-code/getting-started',
+  },
+  {
     title: '工具',
     description: '用好工具，快人一步。',
-    href: '/docs/tool/ai/chat-gpt',
+    href: '/docs/tool/ide/intellij-idea',
   },
   {
     title: '设计',
-    description: '都是一个套路，不需要一个项目一个模板。',
+    description: '套路统一，不需要一个项目一个模板。',
     href: '/docs/design/system/uml',
   },
   {
     title: '后端',
-    description: '下一步该学什么？怎么搭框架？过来看看吧。',
+    description: '该学什么？怎么搭框架？',
     href: '/docs/backend/java/stack',
   },
   {
     title: '前端',
-    description: '前端千变万化，又有什么新东西啦？',
+    description: '千变万化，又有什么新东西啦？',
     href: '/docs/frontend/web/stack',
   },
   {
@@ -45,7 +50,7 @@ export default function HomePage() {
           精简，统一，拿来即用！
         </p>
         <Link
-          href="/docs/guide/introduction"
+          href="/docs/ai/claude-code/getting-started"
           className="inline-flex items-center rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90"
         >
           开始

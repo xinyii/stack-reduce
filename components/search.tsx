@@ -37,7 +37,7 @@ export default function StaticSearchDialog(props: SharedProps) {
       <SearchDialogContent>
         <SearchDialogHeader>
           <SearchDialogIcon />
-          <SearchDialogInput />
+          <SearchDialogInput placeholder="搜索文档..." />
           <SearchDialogClose />
         </SearchDialogHeader>
         <SearchDialogList

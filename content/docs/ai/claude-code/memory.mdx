@@ -1,0 +1,64 @@
+---
+title: CLAUDE.md 记忆系统
+description: Claude Code 的持久化配置机制，为 Claude 提供项目上下文。
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+CLAUDE.md 是 Claude Code 最核心的配置机制——它在每次会话启动时自动加载，为 Claude 提供持久化的项目上下文。
+
+## 层级结构
+
+| 层级 | 位置 | 作用范围 |
+|------|------|----------|
+| 用户级 | `~/.claude/CLAUDE.md` | 所有项目 |
+| 项目级 | `./CLAUDE.md`（项目根目录） | 当前仓库 |
+| 子目录级 | `子目录/CLAUDE.md` | 相关子目录 |
+| 模块化规则 | `.claude/rules/*.md` | 按文件模式匹配按需加载 |
+| 自动记忆 | `.claude/projects/*/MEMORY.md` | 每个项目文件夹（Claude 自动写入） |
+
+各层级自动加载、互不覆盖，总共约消耗 2000 token（不到上下文窗口的 1%）。
+
+## 最佳写法
+
+```markdown
+# 代码风格
+- 使用 ES modules（import/export），不用 CommonJS（require）
+- 尽量使用解构导入（如 import { foo } from 'bar'）
+
+# 工作流
+- 完成一系列代码改动后务必进行类型检查
+- 优先运行单个测试，不要运行整个测试套件
+
+# 常用命令
+- 构建：pnpm build
+- 测试：pnpm test
+- Lint：pnpm lint
+```
+
+## 应该包含 vs 不应该包含
+
+| 应该包含 | 不应该包含 |
+|----------|------------|
+| Claude 无法猜到的 Bash 命令 | Claude 读代码就能推断出的信息 |
+| 不同于默认值的代码风格规则 | 语言的标准约定（Claude 已知） |
+| 测试指令和首选测试运行器 | 详细 API 文档（改为链接） |
+| 分支命名、PR 约定等仓库规范 | 经常变动的信息 |
+| 项目特定的架构决策 | 冗长的教程或解释 |
+| 常见坑和非显而易见的行为 | 不言自明的规范如"写干净的代码" |
+
+<Callout type="warn">
+CLAUDE.md 建议控制在 300 行以内。研究表明前沿 LLM 能可靠遵循约 150–200 条指令，过长的文件会导致重要规则被忽略。
+</Callout>
+
+## 导入其他文件
+
+CLAUDE.md 支持 `@path/to/file` 语法引用其他文件：
+
+```markdown
+参考 @README.md 了解项目概况，参考 @package.json 了解可用的 npm 命令。
+
+# 其他指令
+- Git 工作流：@docs/git-instructions.md
+- 个人覆盖：@~/.claude/my-project-instructions.md
+```

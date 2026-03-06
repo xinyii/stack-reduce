@@ -1,0 +1,48 @@
+---
+title: 并行与规模化
+description: 多会话并行、批量处理与 CI/CD 集成。
+---
+
+## 多会话并行
+
+| 方式 | 说明 |
+|------|------|
+| Agent Teams | 多个 Claude 实例自动协调，共享任务和消息 |
+| Claude Code 桌面端 | 可视化管理多个本地会话，每个会话独立 worktree |
+| Claude Code Web | 在 Anthropic 云端隔离 VM 中运行 |
+
+## Writer/Reviewer 模式
+
+| 会话 A（Writer） | 会话 B（Reviewer） |
+|-------------------|---------------------|
+| "为 API 端点实现速率限制器" | — |
+| — | "审查 @src/middleware/rateLimiter.ts 中的速率限制器实现，检查边界情况、竞态条件" |
+| "这是审查反馈：[B 的输出]。解决这些问题。" | — |
+
+## 批量处理（Fan-out）
+
+```bash
+# 批量迁移文件
+for file in $(cat files.txt); do
+  claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
+    --allowedTools "Edit,Bash(git commit *)"
+done
+```
+
+## CI/CD 集成
+
+```bash
+# 在 CI 管道中使用
+claude -p "检查这个 PR 的代码质量" --output-format json
+
+# 流式处理
+claude -p "分析日志文件" --output-format stream-json | your_command
+```
+
+## 相关资源
+
+- 官方文档：[code.claude.com/docs](https://code.claude.com/docs)
+- 最佳实践：[docs.anthropic.com/en/docs/claude-code/best-practices](https://docs.anthropic.com/en/docs/claude-code/best-practices)
+- 速查手册：[claudecn.com/docs/claude-code/reference/quick-reference](https://claudecn.com/docs/claude-code/reference/quick-reference/)
+- Hooks 指南：[code.claude.com/docs/en/hooks-guide](https://code.claude.com/docs/en/hooks-guide)
+- MCP 集成：[docs.claude.com/en/docs/claude-code/mcp](https://docs.claude.com/en/docs/claude-code/mcp)

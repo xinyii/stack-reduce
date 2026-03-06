@@ -20,7 +20,6 @@ graph TD
     LayoutShared["layout.shared.tsx<br/>导航配置"]
   end
   subgraph Content["content/docs/"]
-    Guide["guide/"]
     Tool["tool/"]
     Design["design/"]
     Backend["backend/"]
