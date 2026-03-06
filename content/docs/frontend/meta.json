@@ -1,0 +1,5 @@
+{
+  "title": "前端",
+  "root": true,
+  "pages": ["web", "h5", "app", "common"]
+}

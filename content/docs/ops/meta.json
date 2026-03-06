@@ -1,0 +1,5 @@
+{
+  "title": "运维",
+  "root": true,
+  "pages": ["deploy", "cicd"]
+}
