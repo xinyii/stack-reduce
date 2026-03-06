@@ -1,0 +1,266 @@
+---
+title: Rules 规则系统
+description: 从 .cursorrules 到 .mdc 的演进，规则类型、配置方法与最佳实践。
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+> Rules 是让 AI 持续"懂"你的代码风格和项目规范的机制——配置后 PR 评审意见从 10+ 条降至 2–3 条。
+
+## 演进：从 .cursorrules 到 .mdc
+
+| 阶段 | 文件 | 位置 | 特点 |
+|------|------|------|------|
+| 早期 | `.cursorrules` | 项目根目录 | 单文件，所有规则混在一起 |
+| 现在 | `.mdc` 文件 | `.cursor/rules/` 目录 | 多文件模块化，支持条件触发 |
+
+<Callout>
+`.cursorrules` 仍然兼容，但推荐迁移到 `.cursor/rules/` 目录下的 `.mdc` 文件，获得更好的模块化和条件触发能力。
+</Callout>
+
+## .mdc 文件结构
+
+每个 `.mdc` 文件包含 YAML frontmatter 和 Markdown 正文：
+
+```markdown
+---
+description: TypeScript 编码规范
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# TypeScript 规范
+
+- 使用 `interface` 而非 `type` 定义对象类型
+- 禁止使用 `any`，用 `unknown` 替代
+- 函数参数超过 3 个时使用对象参数
+- 异步函数必须有错误处理
+```
+
+### Frontmatter 字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `description` | string | 规则描述，帮助 AI 判断是否应用此规则 |
+| `globs` | string | 文件匹配模式，决定 AutoAttach 的触发范围 |
+| `alwaysApply` | boolean | 是否始终注入上下文 |
+
+## 四种规则类型
+
+根据 `alwaysApply` 和 `globs` 的组合，规则分为四种触发方式：
+
+### Always（始终生效）
+
+```yaml
+alwaysApply: true
+```
+
+每次对话都自动注入。适合全局性规范，如项目技术栈、通用编码风格。
+
+### AutoAttach（自动附加）
+
+```yaml
+alwaysApply: false
+globs: "**/*.test.ts"
+```
+
+当对话引用了匹配 glob 的文件时自动触发。适合特定文件类型的规范，如测试规范、API 路由规范。
+
+### Agent Request（AI 按需）
+
+```yaml
+alwaysApply: false
+# 不设置 globs，但有 description
+```
+
+AI 根据 `description` 自行判断是否需要此规则。适合特定场景的指南，如数据库迁移步骤。
+
+### Manual（手动引用）
+
+```yaml
+alwaysApply: false
+# 无 globs，无 description
+```
+
+需要在对话中通过 `@ruleName` 显式引用。适合偶尔使用的参考资料。
+
+## 10 种配置场景
+
+### 1. 项目概览
+
+```markdown
+---
+description: 项目基本信息
+alwaysApply: true
+---
+
+# 项目概览
+- 技术栈：Next.js 15 + TypeScript + Tailwind CSS + Prisma
+- 包管理器：pnpm
+- Node 版本：22+
+- 数据库：PostgreSQL
+```
+
+### 2. 编码风格
+
+```markdown
+---
+description: 代码风格规范
+alwaysApply: true
+---
+
+- 使用函数式组件，禁止 class 组件
+- 优先使用 const 声明
+- 字符串使用单引号
+- 文件命名使用 kebab-case
+- 组件命名使用 PascalCase
+```
+
+### 3. 技术栈专用
+
+```markdown
+---
+description: React 组件开发规范
+globs: "src/components/**/*.tsx"
+alwaysApply: false
+---
+
+- 使用 forwardRef 封装可复用组件
+- Props 接口以组件名 + Props 命名（如 ButtonProps）
+- 使用 Tailwind CSS，禁止内联样式
+```
+
+### 4. 项目架构
+
+```markdown
+---
+description: 项目目录结构和模块职责
+alwaysApply: true
+---
+
+# 目录结构
+- src/app/ — Next.js App Router 路由
+- src/components/ — 可复用 UI 组件
+- src/lib/ — 工具函数和第三方封装
+- src/server/ — 服务端逻辑（API、数据库）
+```
+
+### 5. 测试规范
+
+```markdown
+---
+description: 单元测试编写规范
+globs: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts"
+alwaysApply: false
+---
+
+- 使用 Vitest 作为测试框架
+- 测试文件与源文件同目录
+- 描述使用中文，测试函数名用英文
+- 每个测试只验证一个行为
+```
+
+### 6. API 设计
+
+```markdown
+---
+description: REST API 设计规范
+globs: "src/app/api/**/*.ts"
+alwaysApply: false
+---
+
+- URL 使用 kebab-case
+- 响应统一包含 code、message、data 字段
+- 列表接口必须支持分页
+- 错误使用标准 HTTP 状态码
+```
+
+### 7. 数据库规范
+
+```markdown
+---
+description: 数据库和 Prisma 使用规范
+globs: "prisma/**,src/server/db/**"
+alwaysApply: false
+---
+
+- 表名使用 snake_case
+- 每张表必须有 created_at 和 updated_at
+- 使用软删除（deleted_at）而非物理删除
+- 索引命名：idx_{表名}_{字段名}
+```
+
+### 8. Git 提交
+
+```markdown
+---
+description: Git 提交规范
+alwaysApply: false
+---
+
+提交信息格式：type(scope): description
+
+type: feat | fix | refactor | docs | test | chore
+scope: 模块名
+description: 简短中文描述
+```
+
+### 9. 安全规范
+
+```markdown
+---
+description: 安全编码规范
+alwaysApply: true
+---
+
+- 永远不要在代码中硬编码密钥或凭证
+- 用户输入必须经过验证和清洗
+- SQL 查询必须使用参数化
+- API 接口必须做权限校验
+```
+
+### 10. 性能优化
+
+```markdown
+---
+description: 前端性能最佳实践
+globs: "src/components/**/*.tsx,src/app/**/*.tsx"
+alwaysApply: false
+---
+
+- 列表渲染使用虚拟滚动（>100 条时）
+- 图片使用 next/image 自动优化
+- 大型依赖使用动态导入 dynamic()
+- 避免在渲染函数中创建新对象/数组
+```
+
+## 最佳实践
+
+### 文件组织
+
+推荐使用数字前缀控制优先级：
+
+```
+.cursor/rules/
+├── 001-project-overview.mdc    # 最高优先级
+├── 002-coding-style.mdc
+├── 010-react-components.mdc
+├── 020-api-design.mdc
+├── 030-testing.mdc
+└── 099-git-commits.mdc         # 最低优先级
+```
+
+### 编写原则
+
+| 原则 | 说明 |
+|------|------|
+| 控制篇幅 | 单个规则文件不超过 500 行，过长则拆分 |
+| 给出示例 | 每条规则附带正确和错误的代码示例 |
+| 具体明确 | "使用 `interface`" 优于 "使用合适的类型定义方式" |
+| 标记废弃 | 对不再使用的模式明确标注 `@deprecated` |
+| 定期维护 | 随框架升级和团队实践演进及时更新 |
+| 团队共享 | `.cursor/rules/` 提交到 Git，团队统一标准 |
+
+<Callout type="warn" title="注意">
+规则过多反而会降低 AI 表现——上下文窗口被规则占满，留给实际代码的空间就少了。只保留真正必要的规则，删除不再适用的旧规则。
+</Callout>

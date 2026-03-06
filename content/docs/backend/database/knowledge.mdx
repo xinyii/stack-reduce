@@ -3,4 +3,120 @@ title: 知识点
 description: 数据库相关知识点。
 ---
 
-数据库相关知识点。
+## 索引
+
+### 索引类型
+
+| 类型 | 说明 |
+|------|------|
+| B+Tree 索引 | 最常用的索引结构，适合范围查询和排序 |
+| Hash 索引 | 仅支持等值查询，Memory 引擎默认使用 |
+| 全文索引 | 用于全文搜索，InnoDB 5.6+ 支持 |
+| 空间索引 | 用于地理空间数据（GIS） |
+
+### 索引设计原则
+
+- 在 `WHERE`、`ORDER BY`、`GROUP BY` 涉及的列上建索引
+- 区分度高的列优先（如用户 ID），区分度低的列不适合单独建索引（如性别）
+- 联合索引遵循**最左前缀原则**
+- 避免在索引列上使用函数或隐式类型转换
+- 覆盖索引可以避免回表查询，优先考虑
+
+### 索引失效场景
+
+- 使用 `!=`、`NOT IN`、`IS NOT NULL`
+- `LIKE '%keyword'` 左模糊匹配
+- 对索引列进行函数运算或类型转换
+- 联合索引未使用最左列
+
+## 事务
+
+### 四大特性（ACID）
+
+| 特性 | 说明 |
+|------|------|
+| 原子性（Atomicity） | 事务中的操作要么全部成功，要么全部回滚 |
+| 一致性（Consistency） | 事务前后数据库状态保持一致 |
+| 隔离性（Isolation） | 并发事务之间互不干扰 |
+| 持久性（Durability） | 事务提交后数据永久保存 |
+
+### 隔离级别
+
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 |
+|---------|------|-----------|------|
+| READ UNCOMMITTED | 可能 | 可能 | 可能 |
+| READ COMMITTED | 不会 | 可能 | 可能 |
+| REPEATABLE READ（MySQL 默认） | 不会 | 不会 | 可能 |
+| SERIALIZABLE | 不会 | 不会 | 不会 |
+
+> MySQL InnoDB 在 REPEATABLE READ 级别下通过 MVCC + Next-Key Lock 可以在大多数场景避免幻读。
+
+## 锁
+
+### 锁的分类
+
+| 维度 | 类型 | 说明 |
+|------|------|------|
+| 粒度 | 表锁 | 开销小、加锁快，并发度低 |
+| | 行锁 | 开销大、加锁慢，并发度高（InnoDB 支持） |
+| 模式 | 共享锁（S） | 读锁，多个事务可同时持有 |
+| | 排他锁（X） | 写锁，独占，阻塞其他读写 |
+| 算法 | Record Lock | 锁定单条记录 |
+| | Gap Lock | 锁定索引间隙，防止插入 |
+| | Next-Key Lock | Record + Gap，InnoDB 默认 |
+
+### 死锁排查
+
+```sql
+-- 查看当前锁等待
+SHOW ENGINE INNODB STATUS;
+
+-- 查看正在运行的事务
+SELECT * FROM information_schema.INNODB_TRX;
+```
+
+## SQL 优化
+
+### 慢查询定位
+
+```sql
+-- 开启慢查询日志
+SET GLOBAL slow_query_log = ON;
+SET GLOBAL long_query_time = 1;
+
+-- 查看慢查询日志路径
+SHOW VARIABLES LIKE 'slow_query_log_file';
+```
+
+### EXPLAIN 关键字段
+
+| 字段 | 关注点 |
+|------|--------|
+| type | 至少达到 `range`，避免 `ALL`（全表扫描） |
+| key | 实际使用的索引 |
+| rows | 扫描行数，越小越好 |
+| Extra | 避免 `Using filesort`、`Using temporary` |
+
+### 常见优化手段
+
+- 避免 `SELECT *`，只查需要的字段
+- 大表分页用 `WHERE id > ?` 代替 `LIMIT offset, size`
+- `IN` 子查询改写为 `JOIN`
+- 批量插入代替逐行插入
+- 合理使用 `UNION ALL` 代替 `UNION`（无需去重时）
+
+## 分库分表
+
+### 拆分策略
+
+| 策略 | 适用场景 |
+|------|---------|
+| 垂直分库 | 按业务模块拆分，如订单库、用户库 |
+| 垂直分表 | 将大字段拆分到扩展表 |
+| 水平分库 | 同一业务数据按规则分散到多个库 |
+| 水平分表 | 单表数据量过大时按规则分散到多张表 |
+
+### 常用中间件
+
+- [ShardingSphere](https://shardingsphere.apache.org/) - Apache 顶级项目，支持分库分表、读写分离
+- [MyCat](http://www.mycat.org.cn/) - 数据库中间件，透明化分库分表

@@ -3,4 +3,114 @@ title: Docker
 description: Docker 安装部署指南。
 ---
 
-Docker 安装部署指南。
+import { Callout } from "fumadocs-ui/components/callout";
+
+- [安装说明](https://docs.docker.com/engine/install/)
+
+## CentOS
+
+### 1. 卸载旧版本
+
+```shell
+yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+```
+
+### 2. 安装依赖
+
+```shell
+yum install -y yum-utils device-mapper-persistent-data lvm2
+```
+
+### 3. 添加 Docker 仓库
+
+```shell
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+```
+
+> 国内服务器可使用阿里云镜像源：
+
+```shell
+yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+```
+
+### 4. 安装 Docker
+
+```shell
+yum install -y docker-ce docker-ce-cli containerd.io
+```
+
+### 5. 启动并设置开机自启
+
+```shell
+systemctl start docker
+systemctl enable docker
+```
+
+### 6. 验证安装
+
+```shell
+docker --version
+docker run hello-world
+```
+
+### 7. 配置镜像加速
+
+创建或编辑 `/etc/docker/daemon.json`：
+
+```json
+{
+  "registry-mirrors": [
+    "https://mirror.ccs.tencentyun.com",
+    "https://docker.m.daocloud.io"
+  ]
+}
+```
+
+重载配置并重启：
+
+```shell
+systemctl daemon-reload
+systemctl restart docker
+```
+
+## Docker Compose
+
+### 安装
+
+```shell
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+
+## 常用命令
+
+### 镜像
+
+```shell
+docker pull <image>           # 拉取镜像
+docker images                 # 查看本地镜像
+docker rmi <image>            # 删除镜像
+docker build -t <name> .      # 构建镜像
+```
+
+### 容器
+
+```shell
+docker ps                     # 查看运行中的容器
+docker ps -a                  # 查看所有容器
+docker run -d --name <name> <image>  # 后台运行容器
+docker stop <container>       # 停止容器
+docker rm <container>         # 删除容器
+docker logs -f <container>    # 查看容器日志
+docker exec -it <container> /bin/bash  # 进入容器
+```
+
+### Docker Compose
+
+```shell
+docker-compose up -d          # 后台启动所有服务
+docker-compose down           # 停止并移除所有服务
+docker-compose logs -f        # 查看日志
+docker-compose ps             # 查看服务状态
+```

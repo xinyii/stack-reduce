@@ -3,4 +3,143 @@ title: Jenkins
 description: Jenkins CI/CD 配置指南。
 ---
 
-Jenkins CI/CD 配置指南。
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Docker 部署
+
+### 1. 创建数据目录
+
+```shell
+mkdir -p /data/jenkins
+chmod 777 /data/jenkins
+```
+
+### 2. 启动容器
+
+```shell
+docker run -d \
+  --name jenkins \
+  --restart=always \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v /data/jenkins:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  jenkins/jenkins:lts
+```
+
+### 3. 获取初始密码
+
+```shell
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+访问 `http://<服务器IP>:8080`，输入密码完成初始化。
+
+## 常用插件
+
+| 插件 | 用途 |
+|------|------|
+| Git | Git 仓库集成 |
+| Pipeline | 流水线任务支持 |
+| NodeJS | 前端构建环境 |
+| Maven Integration | Java 项目构建 |
+| Publish Over SSH | 通过 SSH 部署到远程服务器 |
+| DingTalk | 钉钉构建通知 |
+
+## Pipeline 示例
+
+### Java 后端
+
+```groovy
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'JDK17'
+    }
+    stages {
+        stage('拉取代码') {
+            steps {
+                git branch: 'main', url: 'https://gitee.com/your/repo.git'
+            }
+        }
+        stage('构建') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+        stage('部署') {
+            steps {
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'production-server',
+                        transfers: [
+                            sshTransfer(
+                                sourceFiles: 'target/*.jar',
+                                remoteDirectory: '/data/app',
+                                execCommand: 'sh /data/app/restart.sh'
+                            )
+                        ]
+                    )
+                ])
+            }
+        }
+    }
+    post {
+        success {
+            echo '构建成功'
+        }
+        failure {
+            echo '构建失败'
+        }
+    }
+}
+```
+
+### Vue 前端
+
+```groovy
+pipeline {
+    agent any
+    tools {
+        nodejs 'NodeJS18'
+    }
+    stages {
+        stage('拉取代码') {
+            steps {
+                git branch: 'main', url: 'https://gitee.com/your/repo.git'
+            }
+        }
+        stage('安装依赖') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('构建') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+        stage('部署') {
+            steps {
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'production-server',
+                        transfers: [
+                            sshTransfer(
+                                sourceFiles: 'dist/**',
+                                remoteDirectory: '/data/nginx/html',
+                                removePrefix: 'dist'
+                            )
+                        ]
+                    )
+                ])
+            }
+        }
+    }
+}
+```
+
+<Callout title="提示">
+Pipeline 脚本建议保存为项目根目录的 `Jenkinsfile`，纳入版本管理。
+</Callout>

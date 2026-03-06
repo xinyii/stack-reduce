@@ -3,4 +3,141 @@ title: Java
 description: Java 单元测试指南。
 ---
 
-Java 单元测试指南。
+import { Callout } from "fumadocs-ui/components/callout";
+
+## 技术选型
+
+| 框架 | 用途 |
+|------|------|
+| [JUnit 5](https://junit.org/junit5/) | 测试框架 |
+| [Mockito](https://site.mockito.org/) | Mock 框架 |
+| [AssertJ](https://assertj.github.io/doc/) | 流式断言库 |
+| Spring Boot Test | Spring 集成测试支持 |
+
+<Callout title="提示">
+Spring Boot 已内置 `spring-boot-starter-test`，包含 JUnit 5、Mockito、AssertJ 等依赖，无需额外引入。
+</Callout>
+
+## JUnit 5 基础
+
+### 常用注解
+
+| 注解 | 说明 |
+|------|------|
+| `@Test` | 标记测试方法 |
+| `@DisplayName` | 设置测试显示名称 |
+| `@BeforeEach` / `@AfterEach` | 每个测试方法前后执行 |
+| `@BeforeAll` / `@AfterAll` | 所有测试方法前后执行（静态方法） |
+| `@Disabled` | 跳过测试 |
+| `@ParameterizedTest` | 参数化测试 |
+
+### 基础示例
+
+```java
+@DisplayName("用户服务测试")
+class UserServiceTest {
+
+    @Test
+    @DisplayName("根据ID查询用户")
+    void shouldFindUserById() {
+        User user = userService.findById(1L);
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("张三");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "  "})
+    @DisplayName("用户名不能为空白")
+    void shouldRejectBlankUsername(String name) {
+        assertThatThrownBy(() -> userService.create(name))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+}
+```
+
+## Mockito
+
+### 常用方式
+
+```java
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @InjectMocks
+    private OrderService orderService;
+
+    @Test
+    @DisplayName("创建订单")
+    void shouldCreateOrder() {
+        Order order = new Order("P001", 2);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        Order result = orderService.create("P001", 2);
+
+        assertThat(result.getProductId()).isEqualTo("P001");
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+}
+```
+
+### 常用 API
+
+| API | 说明 |
+|-----|------|
+| `when(...).thenReturn(...)` | 设定 Mock 返回值 |
+| `when(...).thenThrow(...)` | 设定 Mock 抛出异常 |
+| `verify(mock, times(n))` | 验证方法调用次数 |
+| `any()` / `eq()` | 参数匹配器 |
+| `@Spy` | 部分 Mock，真实调用未 Mock 的方法 |
+
+## Spring Boot Test
+
+### 集成测试
+
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+class UserControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    @DisplayName("GET /api/users/1 返回用户信息")
+    void shouldReturnUser() throws Exception {
+        mockMvc.perform(get("/api/users/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("张三"));
+    }
+}
+```
+
+### Service 层测试
+
+```java
+@SpringBootTest
+class UserServiceIntegrationTest {
+
+    @Autowired
+    private UserService userService;
+
+    @MockBean
+    private EmailService emailService;
+
+    @Test
+    void shouldRegisterUser() {
+        userService.register("test@example.com");
+        verify(emailService).sendWelcomeEmail("test@example.com");
+    }
+}
+```
+
+## 最佳实践
+
+- 测试方法名使用 `should...` 或 `given...when...then...` 模式
+- 单元测试不依赖数据库、网络等外部资源，用 Mock 隔离
+- 每个测试只验证一个行为
+- 保持测试独立，不依赖执行顺序

@@ -38,9 +38,23 @@ const features = [
   },
 ];
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Stack Reduce',
+  url: 'https://stack-reduce.kitlib.cn',
+  description:
+    '归纳知识，降低"噪音"——涵盖 AI、后端、前端、设计、测试、运维的精简技术文档库',
+  inLanguage: 'zh-CN',
+};
+
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 text-center">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-2xl py-16">
         <h1 className="mb-4 text-4xl font-bold md:text-5xl">Stack Reduce</h1>
         <p className="mb-2 text-xl text-fd-muted-foreground md:text-2xl">

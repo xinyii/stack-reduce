@@ -3,4 +3,87 @@ title: JMeter
 description: JMeter 性能测试指南。
 ---
 
-JMeter 性能测试指南。
+import { Callout } from "fumadocs-ui/components/callout";
+
+## 线程组配置
+
+| 参数 | 说明 | 示例 |
+|------|------|------|
+| Number of Threads | 并发用户数 | 100 |
+| Ramp-Up Period | 所有线程启动完成的时间（秒） | 10 |
+| Loop Count | 每个线程执行次数 | 10 |
+| Duration | 持续时间（秒），勾选 Infinite 后生效 | 60 |
+
+> 上述示例表示：10 秒内启动 100 个线程，每个线程循环执行 10 次请求。
+
+## 常用监听器
+
+### 聚合报告（Aggregate Report）
+
+右键 `Thread Group` → `Add` → `Listener` → `Aggregate Report`
+
+| 指标 | 说明 |
+|------|------|
+| Samples | 总请求数 |
+| Average | 平均响应时间（ms） |
+| Median | 中位数响应时间 |
+| 90% Line | 90% 请求的响应时间上限 |
+| 95% Line | 95% 请求的响应时间上限 |
+| 99% Line | 99% 请求的响应时间上限 |
+| Min / Max | 最小 / 最大响应时间 |
+| Error % | 错误率 |
+| Throughput | 吞吐量（请求/秒） |
+
+### 关键性能指标参考
+
+| 指标 | 一般标准 |
+|------|---------|
+| 平均响应时间 | < 200ms（API 接口） |
+| 95% Line | < 500ms |
+| 错误率 | < 1% |
+| 吞吐量 | 根据业务目标评估 |
+
+## 命令行运行
+
+<Callout title="提示">
+正式性能测试应使用命令行模式（Non-GUI），避免 GUI 模式消耗额外资源影响结果。
+</Callout>
+
+```shell
+jmeter -n -t test-plan.jmx -l result.jtl -e -o report/
+```
+
+| 参数 | 说明 |
+|------|------|
+| `-n` | Non-GUI 模式 |
+| `-t` | 测试计划文件（`.jmx`） |
+| `-l` | 结果日志文件（`.jtl`） |
+| `-e` | 生成 HTML 报告 |
+| `-o` | HTML 报告输出目录 |
+
+生成的 HTML 报告包含响应时间分布图、吞吐量趋势图等可视化图表。
+
+## 性能调优建议
+
+### JMeter 自身优化
+
+- 使用命令行模式运行
+- 移除不必要的 Listener（如 View Results Tree）
+- 大并发时增加 JMeter JVM 堆内存：
+
+```shell
+# 编辑 bin/jmeter 文件
+HEAP="-Xms1g -Xmx4g"
+```
+
+### 分布式压测
+
+当单机无法模拟足够并发时，使用 JMeter 分布式模式：
+
+1. 在多台压力机上启动 `jmeter-server`
+2. 在控制机的 `jmeter.properties` 中配置 `remote_hosts`
+3. 使用 `-r` 参数启动分布式测试：
+
+```shell
+jmeter -n -t test-plan.jmx -r -l result.jtl
+```

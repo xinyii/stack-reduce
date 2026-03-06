@@ -1,5 +1,5 @@
 {
   "title": "AI",
   "root": true,
-  "pages": ["claude-code"]
+  "pages": ["cursor", "claude-code"]
 }

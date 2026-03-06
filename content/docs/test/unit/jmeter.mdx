@@ -1,6 +1,93 @@
 ---
 title: JMeter
-description: JMeter 单元测试指南。
+description: JMeter 接口测试指南。
 ---
 
-JMeter 单元测试指南。
+## 安装
+
+### 1. 下载
+
+[官方下载](https://jmeter.apache.org/download_jmeter.cgi)
+
+> 下载 Binaries 下的 `apache-jmeter-x.x.zip`，解压即可使用。需要预装 JDK 8+。
+
+### 2. 启动
+
+- Windows：双击 `bin/jmeter.bat`
+- Linux / macOS：执行 `bin/jmeter.sh`
+
+### 3. 切换中文
+
+菜单 `Options` → `Choose Language` → `Chinese (Simplified)`
+
+## 创建接口测试
+
+### 1. 添加线程组
+
+右键 `Test Plan` → `Add` → `Threads` → `Thread Group`
+
+| 参数 | 设置 |
+|------|------|
+| Number of Threads | 1（接口测试设为 1） |
+| Ramp-Up Period | 0 |
+| Loop Count | 1 |
+
+### 2. 添加 HTTP 请求
+
+右键 `Thread Group` → `Add` → `Sampler` → `HTTP Request`
+
+| 参数 | 示例 |
+|------|------|
+| Protocol | http |
+| Server Name | localhost |
+| Port Number | 8080 |
+| Method | GET |
+| Path | /api/users/1 |
+
+### 3. 添加请求头
+
+> POST 请求通常需要设置 `Content-Type: application/json`。
+
+右键 `Thread Group` → `Add` → `Config Element` → `HTTP Header Manager`
+
+添加：`Content-Type` = `application/json`
+
+### 4. 添加断言
+
+右键 `HTTP Request` → `Add` → `Assertions` → `Response Assertion`
+
+| 参数 | 说明 |
+|------|------|
+| Apply to | Main sample only |
+| Field to Test | Response Code |
+| Pattern Matching Rules | Equals |
+| Patterns to Test | 200 |
+
+也可以添加 **JSON Assertion** 验证返回字段：
+
+右键 `HTTP Request` → `Add` → `Assertions` → `JSON Assertion`
+
+| 参数 | 示例 |
+|------|------|
+| JSON Path | $.name |
+| Expected Value | 张三 |
+
+### 5. 添加结果查看器
+
+右键 `Thread Group` → `Add` → `Listener` → `View Results Tree`
+
+点击工具栏绿色启动按钮运行测试，在 `View Results Tree` 中查看请求和响应详情。
+
+## 参数化
+
+### CSV Data Set Config
+
+右键 `Thread Group` → `Add` → `Config Element` → `CSV Data Set Config`
+
+| 参数 | 说明 |
+|------|------|
+| Filename | 数据文件路径（如 `data.csv`） |
+| Variable Names | 变量名，逗号分隔（如 `id,name`） |
+| Delimiter | 分隔符，默认逗号 |
+
+在 HTTP 请求中使用 `${id}`、`${name}` 引用变量。

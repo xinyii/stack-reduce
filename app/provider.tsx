@@ -9,6 +9,7 @@ export function Provider({ children }: { children: ReactNode }) {
       theme={{ defaultTheme: 'dark' }}
       search={{ SearchDialog }}
       i18n={{
+        locale: 'zh-CN',
         translations: {
           search: '搜索',
           searchNoResult: '没有找到结果',
